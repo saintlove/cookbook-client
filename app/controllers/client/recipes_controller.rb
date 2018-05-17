@@ -4,25 +4,29 @@ class Client::RecipesController < ApplicationController
     @recipes = response.body
     render 'index.html.erb'
   end
-  
+
   def new
     render 'new.html.erb'
   end
 
   def create
     client_params = {
-                         title: params[:title],
-                         chef: params[:chef],
-                         ingredients: params[:ingredients],
-                         directions: params[:directions],
-                         prep_time: params[:prep_time]
-                        
+                    title: params[:title],
+                    chef: params[:chef],
+                    ingredients: params[:ingredients],
+                    directions: params[:directions],
+                    prep_time: params[:prep_time],
+                    image_url: params[:image_url]
                     }
+
     response = Unirest.post(
-                            "http://localhost:3000/api/recipes",
-                            parameters: client_params
-                            )
-    render 'create.html.erb'
+                           "http://localhost:3000/api/recipes",
+                           parameters: client_params
+                          )
+
+    recipe = response.body
+    flash[:success] = "Successfully created recipe"
+    redirect_to "/client/recipes/#{ recipe["id"] }"
   end
 
   def show
@@ -41,25 +45,28 @@ class Client::RecipesController < ApplicationController
 
   def update
     client_params = {
-                         title: params[:title],
-                         chef: params[:chef],
-                         ingredients: params[:ingredients],
-                         directions: params[:directions],
-                         prep_time: params[:prep_time]
-
-                         
+                    title: params[:title],
+                    chef: params[:chef],
+                    ingredients: params[:ingredients],
+                    directions: params[:directions],
+                    prep_time: params[:prep_time],
+                    image_url: params[:image_url]
                     }
+
     response = Unirest.patch(
                              "http://localhost:3000/api/recipes/#{ params[:id] }",
                              parameters: client_params
                             )
+    recipe = response.body
+    flash[:success] = "Successfully Updated Recipe"
+    redirect_to "/client/recipes/#{ recipe["id"] }"
   end
 
   def destroy
     recipe_id = params[:id]
     response = Unirest.delete("http://localhost:3000/api/recipes/#{ recipe_id }")
-    render 'destroy.html.erb'
+    
+    flash[:success] = "Successfully destroyed recipe"
+    redirect_to "/"
   end
-  
 end
-
